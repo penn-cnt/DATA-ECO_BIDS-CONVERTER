@@ -131,7 +131,7 @@ class data_save:
                 idict = self.dataframe.loc[idevice].to_dict()
                 self.datalake[self.site][idevice] = idict
 
-        #pickle.dump(self.datalake,open(self.outfile,'wb'))
+        pickle.dump(self.datalake,open(self.outfile,'wb'))
 
 class data_manager(data_view,data_update,data_save):
 
