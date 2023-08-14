@@ -56,8 +56,8 @@ class data_view:
 
 class data_update:
 
-    def __init__(self,outfile):
-        self.outfile = outfile
+    def __init__(self):
+        pass
 
     def manual_update(self):
 
@@ -77,6 +77,7 @@ class data_update:
         # Append new entry in memory and display
         iDF            = PD.DataFrame([user_array[1:]],index=[user_array[0]],columns=self.dataframe.columns)
         self.dataframe = PD.concat([self.dataframe,iDF])
+        self.dataframe = self.dataframe.loc[~self.dataframe.index.duplicated(keep='last')]
         data_view.create_dataslice(self,user_array[0])
         data_view.display(self)
 
@@ -86,7 +87,8 @@ class data_update:
             user_input=input("Confirm changes (y/n)? ").lower()
         
         # Save output if requested
-        #pickle.dump(self.dataframe,open(self.outfile,'wb'))
+        if user_input == 'y':
+            data_save.__init(self)
 
     def bulk_update(self,upload_file):
 
@@ -106,6 +108,7 @@ class data_update:
 
         # Append new entry in memory and display
         self.dataframe = PD.concat([self.dataframe,iDF])
+        self.dataframe = self.dataframe.loc[~self.dataframe.index.duplicated(keep='last')]
         self.dataslice = iDF.copy()
         data_view.display(self)
 
@@ -115,14 +118,27 @@ class data_update:
             user_input=input("Confirm changes (y/n)? ").lower()
         
         # Save output if requested
-        #pickle.dump(self.dataframe,open(self.outfile,'wb'))
+        if user_input == 'y':
+            data_save.__init__(self)
         
+class data_save:
 
-class data_manager(data_view,data_update):
+    def __init__(self):
+        devices                  = list(self.dataframe.index)
+        self.datalake[self.site] = {}
+        for idevice in devices:
+            if not PD.isnull(self.dataframe.loc[idevice]).all():
+                idict = self.dataframe.loc[idevice].to_dict()
+                self.datalake[self.site][idevice] = idict
+
+        #pickle.dump(self.datalake,open(self.outfile,'wb'))
+
+class data_manager(data_view,data_update,data_save):
 
     def __init__(self, args):
         self.datalake = pickle.load(open(args.datalake,"rb"))
         self.site     = args.site
+        self.outfile  = args.output
         self.datalake_to_dataframe()
 
         # Case statement for usage type
