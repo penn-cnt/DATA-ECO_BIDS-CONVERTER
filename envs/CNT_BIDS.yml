@@ -1,0 +1,20 @@
+name: CNT_BIDS
+channels:
+- defaults
+dependencies:
+- numpy
+- scipy
+- pandas
+- ipython
+- matplotlib
+- tabulate
+- pip
+- pip:
+  - pennprov
+  - mne
+  - mne-bids
+  - paramiko
+  - config
+  - prettytable
+  - pybids
+  - ipykernel
